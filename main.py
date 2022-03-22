@@ -1,3 +1,6 @@
+#command-i to run; output being put in output.txt file
+import numpy as np
+
 def generateTable(data,k=4):
 
     T = {}
@@ -46,3 +49,35 @@ def MarkovChain(text,k=4):
 
 model = MarkovChain(text)
 print('Model Created Successfully!')
+
+def sample_next(ctx,model,k):
+
+    ctx = ctx[-k:]
+    if model.get(ctx) is None:
+        return " "
+    possible_Chars = list(model[ctx].keys())
+    possible_values = list(model[ctx].values())
+
+    print(possible_Chars)
+    print(possible_values)
+
+    return np.random.choice(possible_Chars,p=possible_values)
+
+#sample_next("commo",model,4)
+
+def generateText(starting_sent,k=4,maxLen=1000):
+
+    sentence = starting_sent
+    ctx = starting_sent[-k:]
+
+    for ix in range(maxLen):
+        next_prediction = sample_next(ctx,model,k)
+        sentence += next_prediction
+        ctx = sentence[-k:]
+    return sentence
+
+print("Function Created Successfully!")
+
+text = generateText("dear",k=4,maxLen=1000)
+file = open("./output.txt", 'w')
+file.write(text)
