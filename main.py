@@ -20,7 +20,7 @@ def generateTable(data,k=4):
 
     return T
 
-T = generateTable("my name is Tejas and I am a car who is very new")
+#T = generateTable("my name is Tejas and I am a car who is very new")
 #print(T)
 
 def convertFreqIntoProb(T):
@@ -31,8 +31,8 @@ def convertFreqIntoProb(T):
 
     return T
 
-T = convertFreqIntoProb(T)
-print(T)
+#T = convertFreqIntoProb(T)
+#print(T)
 
 text_path = "stateoftheunion.txt"
 def load_text(filename):
