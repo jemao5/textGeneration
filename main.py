@@ -71,7 +71,7 @@ def sample_next(ctx, model, k):
     return np.random.choice(possible_Chars, p=possible_values)
 
 
-# sample_next("commo",model,4)
+sample_next("commo",model,4)
 
 def generateText(starting_sent, k=4, maxLen=1000):
     sentence = starting_sent
