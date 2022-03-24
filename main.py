@@ -1,13 +1,13 @@
-# command-i to run; output being put in output.txt file
+#command-i to run; output being put in output.txt file
 import numpy as np
 
+def generateTable(data,k=4):
 
-def generateTable(data, k=4):
     T = {}
-    for i in range(len(data) - k):
-        X = data[i:i + k]
-        Y = data[i + k]
-        # print("X  %s and Y %s  "%(X,Y))
+    for i in range(len(data)-k):
+        X = data[i:i+k]
+        Y = data[i+k]
+        #print("X  %s and Y %s  "%(X,Y))
 
         if T.get(X) is None:
             T[X] = {}
@@ -20,45 +20,38 @@ def generateTable(data, k=4):
 
     return T
 
-
-# T = generateTable("my name is Tejas and I am a car who is very new")
-# print(T)
+#T = generateTable("my name is Tejas and I am a car who is very new")
+#print(T)
 
 def convertFreqIntoProb(T):
     for kx in T.keys():
         s = float(sum(T[kx].values()))
         for k in T[kx].keys():
-            T[kx][k] = T[kx][k] / s
+            T[kx][k] = T[kx][k]/s
 
     return T
 
-
-# T = convertFreqIntoProb(T)
-# print(T)
+#T = convertFreqIntoProb(T)
+#print(T)
 
 text_path = "stateoftheunion.txt"
-
-
 def load_text(filename):
-    with open(filename, encoding='utf8') as f:
+    with open(filename,encoding='utf8') as f:
         return f.read().lower()
-
 
 text = load_text(text_path)
 print('Loaded the dataset.')
 
-
-def MarkovChain(text, k=4):
-    T = generateTable(text, k)
+def MarkovChain(text,k=4):
+    T = generateTable(text,k)
     T = convertFreqIntoProb(T)
     return T
-
 
 model = MarkovChain(text)
 print('Model Created Successfully!')
 
+def sample_next(ctx,model,k):
 
-def sample_next(ctx, model, k):
     ctx = ctx[-k:]
     if model.get(ctx) is None:
         return " "
@@ -68,24 +61,23 @@ def sample_next(ctx, model, k):
     print(possible_Chars)
     print(possible_values)
 
-    return np.random.choice(possible_Chars, p=possible_values)
+    return np.random.choice(possible_Chars,p=possible_values)
 
+#sample_next("commo",model,4)
 
-sample_next("commo",model,4)
+def generateText(starting_sent,k=4,maxLen=1000):
 
-def generateText(starting_sent, k=4, maxLen=1000):
     sentence = starting_sent
     ctx = starting_sent[-k:]
 
     for ix in range(maxLen):
-        next_prediction = sample_next(ctx, model, k)
+        next_prediction = sample_next(ctx,model,k)
         sentence += next_prediction
         ctx = sentence[-k:]
     return sentence
 
-
 print("Function Created Successfully!")
 
-text = generateText("dear", k=4, maxLen=1000)
+text = generateText("dear",k=4,maxLen=1000)
 file = open("./output.txt", 'w')
 file.write(text)

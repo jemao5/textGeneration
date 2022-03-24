@@ -2,7 +2,7 @@ import numpy as np
 
 
 def load_text(filepath: str):
-    with open(filepath) as f:
+    with open(filepath, encoding='utf8') as f:
         return f.read().lower()
 
 
@@ -17,9 +17,6 @@ def frequency_table(text: str, sample_size: int) -> dict:
     return table
 
 
-table = frequency_table("the them they then the then", 3)
-print(table)
-
 
 def calculate_probabilities(table: dict) -> None:
     for substring in table.keys():
@@ -27,9 +24,6 @@ def calculate_probabilities(table: dict) -> None:
         for char in table[substring].keys():
             table[substring][char] /= total
 
-
-calculate_probabilities(table)
-print(table)
 
 
 def next_char(text: str, prob_table: dict, sample_size: int) -> str:
@@ -40,4 +34,17 @@ def next_char(text: str, prob_table: dict, sample_size: int) -> str:
         return np.random.choice(list(prob_table[substring].keys()), p=list(prob_table[substring].values()))
 
 
-print(next_char("the", table, 3))
+def all_together(text_size: int):
+    sampletext = load_text("stateoftheunion.txt")
+    markov_table = frequency_table(sampletext, 5)
+    calculate_probabilities(markov_table)
+
+    final_output = sampletext[0:5]
+
+    for i in range(0, text_size):
+        final_output += next_char(final_output.lower(), markov_table, 5)
+
+    file = open("./output.txt", 'w')
+    file.write(final_output)
+
+all_together(1000)
