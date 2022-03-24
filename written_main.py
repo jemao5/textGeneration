@@ -1,12 +1,15 @@
 import numpy as np
+import PyPDF2 as pr
 
 
-def load_text(filepath: str, filetype: str = "txt"):
+def load_text(filepath: str, filetype: str = "txt") -> str:
     if filetype == "txt":
         with open(filepath, encoding='utf8') as f:
             return f.read().lower()
-    # elif filetype is "pdf":
-    #     with open(filepath) as f:
+    elif filetype is "pdf":
+        with open(filepath, "rb") as f:
+            pdf_reader = pr.PdfFileReader(f)
+            return pdf_reader.getPage(0).extractText()
 
 
 def frequency_table(text: str, sample_size: int) -> dict:
@@ -18,7 +21,6 @@ def frequency_table(text: str, sample_size: int) -> dict:
         table[substring].setdefault(next_char, 0)
         table[substring][next_char] += 1
     return table
-
 
 
 def calculate_probabilities(table: dict) -> None:
@@ -37,12 +39,12 @@ def next_char(text: str, prob_table: dict, sample_size: int) -> str:
         return list(prob_table[substring].keys())[np.argmax(prob_table[substring].keys())]
 
 
-def all_together(text_size: int):
-    sampletext = load_text("stateoftheunion.txt")
+def all_together(starter_word: str, filename: str, text_size: int):
+    sampletext = load_text(filename)
     markov_table = frequency_table(sampletext, 5)
     calculate_probabilities(markov_table)
 
-    final_output = "the u"
+    final_output = starter_word
 
     for i in range(0, text_size):
         final_output += next_char(final_output.lower(), markov_table, 5)
@@ -51,4 +53,4 @@ def all_together(text_size: int):
     file.write(final_output)
 
 
-all_together(1000)
+all_together("Them ", "stateoftheunion.txt", 1000)
