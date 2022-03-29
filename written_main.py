@@ -4,7 +4,7 @@ import PyPDF2 as pr
 
 def load_text(filepath: str, filetype: str = "txt") -> str:
     if filetype == "txt":
-        with open(filepath, encoding='utf8') as f:
+        with open(filepath) as f:
             return f.read().lower()
     elif filetype == "pdf":
         with open(filepath, "rb") as f:
@@ -39,7 +39,7 @@ def next_char(text: str, prob_table: dict, sample_size: int) -> str:
         # return list(prob_table[substring].keys())[np.argmax(prob_table[substring].keys())]
 
 
-def all_together(starter_word: str, filename: str, text_size: int, sample_size: int = 3) -> None:
+def all_together(filename: str, text_size: int, starter_word: str = "Them a", sample_size: int = 3) -> None:
     sample_text = load_text(filename)
     markov_table = frequency_table(sample_text, sample_size)
     print(markov_table)
@@ -54,4 +54,4 @@ def all_together(starter_word: str, filename: str, text_size: int, sample_size: 
     file.write(final_output)
 
 
-all_together("Them ", "stateoftheunion.txt", 1000, 3)
+all_together("stateoftheunion.txt", 1000, "Them a", 6)
