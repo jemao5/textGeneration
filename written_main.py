@@ -4,7 +4,7 @@ import PyPDF2 as pr
 
 def load_text(filepath: str, filetype: str = "txt") -> str:
     if filetype == "txt":
-        with open(filepath) as f:
+        with open(filepath, encoding='utf8') as f:
             return f.read().lower()
     elif filetype == "pdf":
         with open(filepath, "rb") as f:
@@ -12,15 +12,49 @@ def load_text(filepath: str, filetype: str = "txt") -> str:
             return pdf_reader.getPage(0).extractText()
 
 
+def next_word(text: str, index: int):
+    i = 1
+    while index+i < len(text) and (text[index+i] != " "):
+        i += 1
+    return text[index+1:index+i]
+
+
+def previous_word(text: str):
+    i = len(text) - 1
+    while i >= 0 and (text[i] != " "):
+        i -= 1
+    return text[i+1:]
+
+
 def frequency_table(text: str, sample_size: int) -> dict:
     table = {}
-    for i in range(0, len(text) - sample_size):
-        substring = text[i:i+sample_size]
-        next_char = text[i+sample_size]
-        table.setdefault(substring, {})
-        table[substring].setdefault(next_char, 0)
-        table[substring][next_char] += 1
+    count = len(text)
+    word_length = 0
+    # for i in range(0, len(text) - sample_size):
+    #     substring = text[i:i+sample_size]
+    #     next_char = text[i+sample_size]
+    #     table.setdefault(substring, {})
+    #     table[substring].setdefault(next_char, 0)
+    #     table[substring][next_char] += 1
+    for i in range(0, len(text)):
+        if count > 0:
+            if text[i] != " ":
+                word_length += 1
+            else:
+                substring = text[i-word_length:i]
+                next_char = next_word(text, i)
+                # print(next_char)
+                table.setdefault(substring, {})
+                table[substring].setdefault(next_char, 0)
+                table[substring][next_char] += 1
+                count -= (word_length+1)
+                word_length = 0
+                i+=1
     return table
+
+
+# table = frequency_table("the them they then the then", 3)
+# print(table)
 
 
 def calculate_probabilities(table: dict) -> None:
@@ -30,8 +64,14 @@ def calculate_probabilities(table: dict) -> None:
             table[substring][char] /= total
 
 
+# calculate_probabilities(table)
+# print(table)
+
+
 def next_char(text: str, prob_table: dict, sample_size: int) -> str:
-    substring = text[-sample_size:]
+    # substring = text[-sample_size:]
+    substring = previous_word(text)
+    print(substring)
     if prob_table.get(substring) is None:
         return " "
     else:
@@ -41,14 +81,15 @@ def next_char(text: str, prob_table: dict, sample_size: int) -> str:
 
 def all_together(filename: str, text_size: int, starter_word: str = "Them a", sample_size: int = 3) -> None:
     sample_text = load_text(filename)
+    sample_text = sample_text.replace("\n", " ")
     markov_table = frequency_table(sample_text, sample_size)
     print(markov_table)
     calculate_probabilities(markov_table)
-    print(markov_table)
+    # print(markov_table)
     final_output = starter_word
 
     for i in range(0, text_size):
-        final_output += next_char(final_output.lower(), markov_table, sample_size)
+        final_output += " " + next_char(final_output.lower(), markov_table, sample_size)
 
     file = open("./output.txt", 'w')
     file.write(final_output)
