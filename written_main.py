@@ -14,47 +14,47 @@ def load_text(filepath: str, filetype: str = "txt") -> str:
 
 def next_word(text: str, index: int):
     i = 1
-    while index+i < len(text) and (text[index+i] != " "):
+    while index+i < len(text) and (text[index+i] != " " and text[i] != "\n"):
         i += 1
-    return text[index+1:index+i]
+    return text[index+1:index+i].replace(".", "")
 
 
 def previous_word(text: str):
     i = len(text) - 1
-    while i >= 0 and (text[i] != " "):
+    while i >= 0 and (text[i] != " " and text[i] != "\n"):
         i -= 1
-    return text[i+1:]
+    return text[i+1:].replace(".", "")
 
 
 def frequency_table(text: str, sample_size: int) -> dict:
     table = {}
-    count = len(text)
-    word_length = 0
-    # for i in range(0, len(text) - sample_size):
-    #     substring = text[i:i+sample_size]
-    #     next_char = text[i+sample_size]
-    #     table.setdefault(substring, {})
-    #     table[substring].setdefault(next_char, 0)
-    #     table[substring][next_char] += 1
-    for i in range(0, len(text)):
-        if count > 0:
-            if text[i] != " ":
-                word_length += 1
-            else:
-                substring = text[i-word_length:i]
-                next_char = next_word(text, i)
-                # print(next_char)
-                table.setdefault(substring, {})
-                table[substring].setdefault(next_char, 0)
-                table[substring][next_char] += 1
-                count -= (word_length+1)
-                word_length = 0
-                i+=1
+    for i in range(0, len(text) - sample_size):
+        substring = text[i:i+sample_size]
+        next_char = text[i+sample_size]
+        table.setdefault(substring, {})
+        table[substring].setdefault(next_char, 0)
+        table[substring][next_char] += 1
+    # count = len(text)
+    # word_length = 0
+    # for i in range(0, len(text)):
+    #     if count > 0:
+    #         if text[i] != " " and text[i] != "\n":
+    #             word_length += 1
+    #         else:
+    #             substring = text[i-word_length:i].replace(".", "")
+    #             next_char = next_word(text, i)
+    #             # print(next_char)
+    #             table.setdefault(substring, {})
+    #             table[substring].setdefault(next_char, 0)
+    #             table[substring][next_char] += 1
+    #             count -= (word_length+1)
+    #             word_length = 0
+    #             i+=1
     return table
 
 
-# table = frequency_table("the them they then the then", 3)
-# print(table)
+table = frequency_table("the them they then the then", 3)
+print(table)
 
 
 def calculate_probabilities(table: dict) -> None:
@@ -69,9 +69,9 @@ def calculate_probabilities(table: dict) -> None:
 
 
 def next_char(text: str, prob_table: dict, sample_size: int) -> str:
-    # substring = text[-sample_size:]
-    substring = previous_word(text)
-    print(substring)
+    substring = text[-sample_size:]
+    # substring = previous_word(text)
+    # print(substring)
     if prob_table.get(substring) is None:
         return " "
     else:
@@ -81,7 +81,7 @@ def next_char(text: str, prob_table: dict, sample_size: int) -> str:
 
 def all_together(filename: str, text_size: int, starter_word: str = "Them a", sample_size: int = 3) -> None:
     sample_text = load_text(filename)
-    sample_text = sample_text.replace("\n", " ")
+    sample_text = " ".join(sample_text.split())
     markov_table = frequency_table(sample_text, sample_size)
     print(markov_table)
     calculate_probabilities(markov_table)
@@ -89,8 +89,14 @@ def all_together(filename: str, text_size: int, starter_word: str = "Them a", sa
     final_output = starter_word
 
     for i in range(0, text_size):
-        final_output += " " + next_char(final_output.lower(), markov_table, sample_size)
+        word = next_char(final_output.lower(), markov_table, sample_size)
+        # if (i+1) % 50 == 0:
+        #     final_output += "\n" + word
+        # else:
+        #     final_output += " " + word
+        final_output += " " + word
 
+    final_output += "."
     file = open("./output.txt", 'w')
     file.write(final_output)
 
